@@ -1,4 +1,8 @@
 $(document).ready(function(){
+    // Create Reminders object
+    REMINDERS = new ReminderList();
+    refreshReminders();
+
     // update widgets when buttons are clicked
     $('form#weather').submit(function (event) {
         getWeather();
@@ -20,12 +24,28 @@ $(document).ready(function(){
         'show me the news': function() {
           getTwitterNews();
         },
+        'remind me to *reminder': function(reminder) {
+            REMINDERS.addReminder(reminder);
+            refreshReminders();
+        },
+        'remind me *reminder': function(reminder) {
+            REMINDERS.addReminder(reminder);
+            refreshReminders();
+        },
+        'good morning bruh': function() {
+            speak('how you doing brah');
+        },
         'hello': function () {
             alert('hello');
         }
       };
 
       annyang.addCommands(commands);
+
+      annyang.addCallback('resultNoMatch', function (result) {
+          console.log("unkown speech recognized:");
+          console.log(result);
+      });
 
       annyang.start();
     }
@@ -50,11 +70,17 @@ function getTwitterNews() {
         var statuses = result.statuses.map(function (status) {
             return '<li>' + status + '</li>';
         });
-        console.log(statuses);
         $('#twitter-result').fadeOut('fast', function () {
             $(this).html('<ul>'+statuses.join('')+'</ul>').fadeIn();
         });
     });
+}
+
+function refreshReminders() {
+    var reminderStrings = REMINDERS.getReminders().map(function (reminder) {
+        return '<li>' + reminder + '</li>';
+    });
+    $('#reminders').html(reminderStrings.join(''));
 }
 
 function speak(message) {
