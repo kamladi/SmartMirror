@@ -4,24 +4,21 @@
 	</head>
 	<link rel="stylesheet" href="static/style.css">
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
-   <script type="text/javascript" src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
+  <script type="text/javascript" src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.1.0/annyang.min.js"></script>
 	<script src="static/client.js"></script>
 	<body>
 		<h1>bruh.</h1>
 
-		<h2>Send:</h2>
-    <form id="emit" method="POST" action='#'>
-        <input type="text" name="emit_data" id="emit_data" placeholder="Message">
-        <input type="submit" value="Echo">
+		<h2></h2>
+    <form id="weather" method="POST" action='#'>
+        <div id="weather-result"></div>
+        <input type="submit" value="Weather">
     </form>
-    <form id="broadcast" method="POST" action='#'>
-        <input type="text" name="broadcast_data" id="broadcast_data" placeholder="Message">
-        <input type="submit" value="Broadcast">
+    <form id="twitter" method="POST" action='#'>
+    		<div id="twitter-result"></div>
+        <input type="submit" value="Twitter">
     </form>
-    <form id="disconnect" method="POST" action="#">
-        <input type="submit" value="Disconnect">
-    </form>
-    <h2>Receive:</h2>
-    <div id="log"></div>
+
 	</body>
 </html>
