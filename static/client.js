@@ -41,6 +41,7 @@ function getWeather() {
         $('#weather-result').fadeOut('fast', function () {
             $(this).text(outputString).fadeIn();
         });
+        speak(outputString);
     });
 }
 
@@ -54,4 +55,11 @@ function getTwitterNews() {
             $(this).html('<ul>'+statuses.join('')+'</ul>').fadeIn();
         });
     });
+}
+
+function speak(message) {
+    var u = new SpeechSynthesisUtterance();
+    u.text = message;
+    u.lang = 'en-US';
+    speechSynthesis.speak(u);
 }
