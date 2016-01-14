@@ -15,7 +15,7 @@ from oauth2client import tools
 import httplib2
 import os
 import datetime
-import usr_dct
+
 
 # stuff needed for authentication google calendar
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
@@ -117,10 +117,13 @@ def calendar():
     service = discovery.build('calendar', 'v3', http=http)
     eventList = []
 
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time                    
+    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time                   
+    laterTime = datetime.datetime.utcnow()+ datetime.timedelta(days=1)
+    later = laterTime.isoformat() + 'Z'
+ 
   #  print('Getting the upcoming 5 events')
     eventsResult = service.events().list(
-        calendarId='primary', timeMin=now, maxResults=5, singleEvents=True,
+        calendarId='primary', timeMin=now, timeMax =later, maxResults=5, singleEvents=True,
         orderBy='startTime').execute()
     events = eventsResult.get('items', [])
 
