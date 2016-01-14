@@ -117,9 +117,12 @@ def calendar():
     eventList = []
 
     now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+    laterTime = datetime.datetime.utcnow()+ datetime.timedelta(days=1)
+    later = laterTime.isoformat() + 'Z'
+
   #  print('Getting the upcoming 5 events')
     eventsResult = service.events().list(
-        calendarId='primary', timeMin=now, maxResults=5, singleEvents=True,
+        calendarId='primary', timeMin=now, timeMax =later, maxResults=5, singleEvents=True,
         orderBy='startTime').execute()
     events = eventsResult.get('items', [])
 
