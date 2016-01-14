@@ -30,6 +30,7 @@ twitter_api = twitter.Api(consumer_key='NANEOT59HbNisCUl680k9EvFz',
                       access_token_secret='ZYafFJtR8JXY4PsMYQCyRT4piYkP2xwEjFg2IPgzwHc9b')
 
 
+# lol why is this needed
 eventlet.monkey_patch()
 
 app = Flask(__name__)
@@ -44,7 +45,7 @@ def background_thread():
     while True:
         time.sleep(5)
         count += 1
-        #socketio.emit('response', {'data': 'Server generated event', 'count': count})
+        # socketio.emit('response', {'data': 'Server generated event', 'count': count})
 
 thread = Thread(target=background_thread)
 thread.start()
@@ -60,18 +61,26 @@ def weather():
     f = urllib2.urlopen(URL)
     json_string = f.read()
     parsed_json = json.loads(json_string)
-    print parsed_json
-    location = parsed_json['current_observation']['display_location']['city']
-    temp_f = parsed_json['current_observation']['temp_f']
+    current_observation = parsed_json['current_observation']
+
+    result = {
+        'location': current_observation['display_location']['city'],
+        'temperature': current_observation['temp_f'],
+        'weather_desc': current_observation['weather'],
+        'icon_url': current_observation['icon'],
+        'icon_url': current_observation['icon_url']
+    }
+
     f.close()
-    return jsonify(location=location, temperature=temp_f)
+    return jsonify(**result)
 
 
 @app.route('/twitter')
 def twitter():
-    statuses = twitter_api.GetUserTimeline(screen_name='CNN')
+    username = 'CNN'
+    statuses = twitter_api.GetUserTimeline(screen_name=username)
     status_msgs = [s.text for s in statuses]
-    return jsonify(statuses=status_msgs)
+    return jsonify(username=username, statuses=status_msgs)
 
 #google calendar stuff
 try:
@@ -129,10 +138,6 @@ def test_connect():
 @socketio.on('disconnect')
 def test_disconnect():
     print 'Client disconnected'
-
-@socketio.on('my broadcast event')
-def broadcast_event(msg):
-    print 'broadcast msg yo: ', msg['data']
 
 if __name__ == "__main__":
     # socketio.run(app)
