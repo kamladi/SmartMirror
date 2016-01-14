@@ -1,0 +1,94 @@
+@font-face {
+  font-family: "FontAwesome";
+  src: url('/static/fonts/fontawesome-webfont.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Weather';
+  src: url('/static/fonts/weather.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Open-Light';
+    src: url('../fonts/OpenSans-Light.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Open-Reg';
+    src: url('../fonts/OpenSans-Regular.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Open-Bold';
+    src: url('../fonts/OpenSans-Bold.ttf') format('truetype');
+}
+
+body {
+	background: black;
+}
+
+h1, h2, h3, h4, p, li, div {
+	font-family: Open-Bold, sans-serif;
+	letter-spacing: normal;
+}
+
+html, button, input, select, textarea,
+.pure-g [class *= "pure-u"] {
+    /* Set your content font stack here: */
+    font-family: Open-Light, serif;
+    letter-spacing: normal;
+}
+
+[class^="icon-"]:before, [class*=" icon-"]:before {
+    top: 5px;
+    position: absolute;
+}
+
+#main {
+	color: white;
+	font-size: 30px;
+	width: 90%;
+	margin: auto auto;
+	height: 90%;
+	padding: 25px;
+}
+
+.weather-icon {
+	display: block;
+	width: 60px;
+  font-size: 4em;
+	font-family: 'Weather';
+}
+
+.weather-temp {
+	margin-left: 60px;
+	font-size: 3em;
+}
+
+.weather-desc {
+	font-family: Open-Light, sans-serif;
+	margin-top: -10px;
+}
+
+#twitter-result, #reminder-result {
+	position: relative;
+}
+
+#twitter-username {
+	margin: 0 50px 15px;
+}
+
+#tweet {
+	font-size: 30px;
+	font-family: Open-Light, sans-serif;
+}
+
+
+#reminders-header {
+	display: inline-block;
+	margin: 0 50px 15px;
+}
+
+.pure-g {
+	min-height: 30%;
+}

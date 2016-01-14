@@ -2,6 +2,7 @@ Twitter = {
 	refreshTweets: function(cb) {
 		var self = this;
 		$.getJSON('/twitter', function (result) {
+			self.username = '@' + result.username;
 			self.tweets = result.statuses;
 			self.numTweets = result.statuses.length;
 			self.currTweetIndex = 0;
@@ -15,5 +16,8 @@ Twitter = {
 	},
 	getCurrTweet: function () {
 		return this.tweets[this.currTweetIndex];
+	},
+	getUsername: function () {
+		return this.username;
 	}
 };

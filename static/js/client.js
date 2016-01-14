@@ -81,6 +81,7 @@ function getWeather(speak) {
             var $this = $(this);
             $this.find('.weather-temp').html(result.temperature + '&deg;');
             $this.find('.weather-icon').html(Weather.getIconCode(result.icon_url));
+            $this.find('.weather-desc').html(result.weather_desc);
             $this.fadeIn();
         });
     });
@@ -91,19 +92,12 @@ function speakWeather(weather) {
     speak(msg);
 }
 
-function getTwitterNews() {
-    $.getJSON('/twitter', function (result) {
-        var statuses = result.statuses.map(function (status) {
-            return '<li>' + status + '</li>';
-        });
-        $('#twitter-result').fadeOut('fast', function () {
-            $(this).html('<ul>'+statuses.join('')+'</ul>').fadeIn();
-        });
-    });
-}
-
 function renderTweet() {
     var curTweet = Twitter.getCurrTweet();
+    curTweet = curTweet.replace('.@','@');
+    // remove links from tweets
+    curTweet = curTweet.replace(/(?:https?|ftp):\/\/[\n\S]+/g,'');
+    $('#twitter-username').text(Twitter.getUsername());
     $('#tweet').fadeOut('fast', function () {
         $(this).html(curTweet).fadeIn();
     });

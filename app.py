@@ -61,9 +61,10 @@ def weather():
 
 @app.route('/twitter')
 def twitter():
-    statuses = twitter_api.GetUserTimeline(screen_name='CNN')
+    username = 'CNN'
+    statuses = twitter_api.GetUserTimeline(screen_name=username)
     status_msgs = [s.text for s in statuses]
-    return jsonify(statuses=status_msgs)
+    return jsonify(username=username, statuses=status_msgs)
 
 
 @socketio.on('connect')
