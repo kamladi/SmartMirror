@@ -6,6 +6,16 @@ $(document).ready(function(){
     setInterval(function () {
         getWeather();
     }, 5*60*1000);
+    Twitter.refreshTweets(function () {
+        renderTweet();
+        setInterval(function () {
+            Twitter.nextTweet();
+            renderTweet();
+        },5000);
+    });
+    // setInterval(function () {
+    //     Twitter.refreshTweets();
+    // });
 
 
     // update widgets when buttons are clicked
@@ -89,6 +99,13 @@ function getTwitterNews() {
         $('#twitter-result').fadeOut('fast', function () {
             $(this).html('<ul>'+statuses.join('')+'</ul>').fadeIn();
         });
+    });
+}
+
+function renderTweet() {
+    var curTweet = Twitter.getCurrTweet();
+    $('#tweet').fadeOut('fast', function () {
+        $(this).html(curTweet).fadeIn();
     });
 }
 

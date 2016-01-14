@@ -76,9 +76,5 @@ Weather = {
         console.log("MISSING", code);
         return "T";
     }
-  },
-
-  render: function(data) {
-
   }
 };

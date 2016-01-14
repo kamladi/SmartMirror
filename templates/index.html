@@ -3,12 +3,14 @@
 		<title>Smart Mirror</title>
 	</head>
 	<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+	<link rel="stylesheet" href="static/icons.css">
 	<link rel="stylesheet" href="static/style.css">
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
 	<script type="text/javascript" src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.1.0/annyang.min.js"></script>
 	<script src="static/reminders.js"></script>
 	<script src="static/weather.js"></script>
+	<script src="static/twitter.js"></script>
 	<script src="static/client.js"></script>
 	<body>
 		<div id="main">
@@ -21,8 +23,10 @@
 						</div>
 					</div>
 					<div class="pure-u-1-2">
-						<h3>Twitter</h3>
-						<div id="twitter-result"></div>
+						<div id="twitter-result">
+							<i class="twitter-icon icon-twitter icon-large"></i>
+							<div id="tweet"></div>
+						</div>
 					</div>
 			</div>
 			<div class="pure-g">
