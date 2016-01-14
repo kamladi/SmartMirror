@@ -7,12 +7,28 @@ import urllib2
 import json
 from flask import jsonify
 import twitter
+from apiclient import discovery
+from apiclient.discovery import build
+import oauth2client
+from oauth2client import client
+from oauth2client import tools
+import httplib2
+import os
+import datetime
+import usr_dct
+
+# stuff needed for authentication google calendar
+SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
+CLIENT_SECRET_FILE = 'client_secret.json'
+APPLICATION_NAME = 'Google Calendar API SMART MIRROR'
+user_gcal = 'jbird'
 
 # setup Twitter api
 twitter_api = twitter.Api(consumer_key='NANEOT59HbNisCUl680k9EvFz',
                       consumer_secret='kx3FPXSm004m9VAOMj8lnCx7A5UNdmQ4uh60VPL18M0YrQYPzN',
                       access_token_key='275410740-6Bsxpm2yY0peqgwEUzvN4df8f466WIXIAmvtZceh',
                       access_token_secret='ZYafFJtR8JXY4PsMYQCyRT4piYkP2xwEjFg2IPgzwHc9b')
+
 
 eventlet.monkey_patch()
 
@@ -57,7 +73,55 @@ def twitter():
     status_msgs = [s.text for s in statuses]
     return jsonify(statuses=status_msgs)
 
+#google calendar stuff
+try:
+    import argparse
+    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
+except ImportError:
+    flags = None
 
+
+
+def gcal_get_credentials():
+    home_dir = os.path.expanduser('~')
+    credential_dir = os.path.join(home_dir, '.credentials.', user_gcal)
+    if not os.path.exists(credential_dir):
+        os.makedirs(credential_dir)
+    credential_path = os.path.join(credential_dir,
+                                   'calendar-smart-mirror.json')
+
+    store = oauth2client.file.Storage(credential_path)
+    credentials = store.get()
+    if not credentials or credentials.invalid:
+        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+        flow.user_agent = APPLICATION_NAME
+        if flags:
+            credentials = tools.run_flow(flow, store, flags)
+        else: # Needed only for compatibility with Python 2.6                                      
+            credentials = tools.run(flow, store)
+    return credentials
+
+@app.route('/calendar')
+def calendar():
+    credentials = gcal_get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    service = discovery.build('calendar', 'v3', http=http)
+
+    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time                    
+    print('Getting the upcoming 5 events')
+    eventsResult = service.events().list(
+        calendarId='primary', timeMin=now, maxResults=5, singleEvents=True,
+        orderBy='startTime').execute()
+    events = eventsResult.get('items', [])
+
+    if not events:
+        print('No upcoming events found.')
+    for event in events:
+        start = event['start'].get('dateTime', event['start'].get('date'))
+        print(start, event['summary'])
+    return
+
+    
 @socketio.on('connect')
 def test_connect():
     print 'client connected'
