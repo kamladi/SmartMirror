@@ -2,6 +2,7 @@ $(document).ready(function(){
     // Create Reminders object
     REMINDERS = new ReminderList();
     refreshReminders();
+    getWeather();
 
     // update widgets when buttons are clicked
     $('form#weather').submit(function (event) {
@@ -19,7 +20,7 @@ $(document).ready(function(){
       // voice command handlers
       var commands = {
         'what is the weather today': function() {
-          getWeather();
+          getWeather(true);
         },
         'show me the news': function() {
           getTwitterNews();
@@ -55,14 +56,25 @@ $(document).ready(function(){
  * helper functions for widgets
  */
 
-function getWeather() {
+function getWeather(speak) {
     $.getJSON('/weather', function (result) {
-        outputString = 'The weather in ' + result.location + " is " + result.temperature + ' degrees.';
+        if (speak) {
+            speakWeather(result);
+            return;
+        }
+
         $('#weather-result').fadeOut('fast', function () {
-            $(this).text(outputString).fadeIn();
+            var $this = $(this);
+            $this.find('.weather-temp').html(result.temperature + '&deg;');
+            $this.find('.weather-icon').html(Weather.getIconCode(result.icon_url));
+            $this.fadeIn();
         });
-        speak(outputString);
     });
+}
+
+function speakWeather(weather) {
+    var msg = 'The weather in ' + weather.location + " is " + weather.temperature + ' degrees. Conditions are ' + weather.weather_desc;
+    speak(msg);
 }
 
 function getTwitterNews() {

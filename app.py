@@ -45,10 +45,18 @@ def weather():
     f = urllib2.urlopen(URL)
     json_string = f.read()
     parsed_json = json.loads(json_string)
-    location = parsed_json['current_observation']['display_location']['city']
-    temp_f = parsed_json['current_observation']['temp_f']
+    current_observation = parsed_json['current_observation']
+
+    result = {
+        'location': current_observation['display_location']['city'],
+        'temperature': current_observation['temp_f'],
+        'weather_desc': current_observation['weather'],
+        'icon_url': current_observation['icon'],
+        'icon_url': current_observation['icon_url']
+    }
+
     f.close()
-    return jsonify(location=location, temperature=temp_f)
+    return jsonify(**result)
 
 
 @app.route('/twitter')

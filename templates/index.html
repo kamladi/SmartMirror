@@ -2,25 +2,52 @@
 	<head>
 		<title>Smart Mirror</title>
 	</head>
+	<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
 	<link rel="stylesheet" href="static/style.css">
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
-  <script type="text/javascript" src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.1.0/annyang.min.js"></script>
-  <script src="static/reminders.js"></script>
+	<script type="text/javascript" src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.1.0/annyang.min.js"></script>
+	<script src="static/reminders.js"></script>
+	<script src="static/weather.js"></script>
 	<script src="static/client.js"></script>
 	<body>
-		<h1>bruh.</h1>
+		<div id="main">
+			<div class="pure-g">
+					<div class="pure-u-1-2">
+						<!-- Weather -->
+						<div id="weather-result" class="pure-g">
+							<span class="weather-icon"></span>
+							<span class="weather-temp"></span>
+						</div>
+					</div>
+					<div class="pure-u-1-2">
+						<h3>Twitter</h3>
+						<div id="twitter-result"></div>
+					</div>
+			</div>
+			<div class="pure-g">
+					<div class="pure-u-1-2"><p>Empty</p></div>
 
-    <form id="weather" method="POST" action='#'>
-        <div id="weather-result"></div>
-        <input type="submit" value="Weather">
-    </form>
-    <form id="twitter" method="POST" action='#'>
-    		<div id="twitter-result"></div>
-        <input type="submit" value="Twitter">
-    </form>
+			</div>
+			<div class="pure-g">
+				<div class="pure-u-1-2"><p>Empty</p></div>
+				<div class="pure-u-1-2">
+						<h3>Reminders</h3>
+						<ul id="reminders"></ul>
+					</div>
+			</div>
 
-		<h3>Reminders</h3>
-		<ul id="reminders"></ul>
+		</div>
+
+	 <!--  <form id="weather" method="POST" action='#'>
+				<div id="weather-result"></div>
+				<input type="submit" value="Weather">
+		</form>
+		<form id="twitter" method="POST" action='#'>
+				<div id="twitter-result"></div>
+				<input type="submit" value="Twitter">
+		</form> -->
+
+
 	</body>
 </html>
