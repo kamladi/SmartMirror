@@ -115,20 +115,22 @@ def calendar():
     credentials = gcal_get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
+    eventList = []
 
     now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time                    
-    print('Getting the upcoming 5 events')
+  #  print('Getting the upcoming 5 events')
     eventsResult = service.events().list(
         calendarId='primary', timeMin=now, maxResults=5, singleEvents=True,
         orderBy='startTime').execute()
     events = eventsResult.get('items', [])
 
-    if not events:
-        print('No upcoming events found.')
     for event in events:
-        start = event['start'].get('dateTime', event['start'].get('date'))
-        print(start, event['summary'])
-    return
+        result = {
+            'start' : event['start'].get('dateTime', event['start'].get('date')),
+            'title' : event['summary']
+         }
+        eventList.append(result)
+    return eventList
 
     
 @socketio.on('connect')
