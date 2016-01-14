@@ -48,7 +48,7 @@ html, button, input, select, textarea,
 	color: white;
 	font-size: 30px;
 	width: 1080px;
-	max-height: 1920px;
+	height: 1920px;
 	margin: auto auto;
 	height: 90%;
 	padding: 25px;
@@ -90,7 +90,7 @@ html, button, input, select, textarea,
 }
 
 .pure-g {
-	min-height: 30%;
+	height: 33%;
 }
 
 .events {
@@ -105,9 +105,11 @@ html, button, input, select, textarea,
 
 .event-start {
 	font-family: Open-Bold;
+	font-size: 25px;
 }
 
 .event-title {
 	font-family: Open-Light;
 	margin-left: 25px;
+	font-size: 20px;
 }
