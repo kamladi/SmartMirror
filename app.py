@@ -15,7 +15,6 @@ from oauth2client import tools
 import httplib2
 import os
 import datetime
-import usr_dct
 
 # stuff needed for authentication google calendar
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
@@ -106,7 +105,7 @@ def gcal_get_credentials():
         flow.user_agent = APPLICATION_NAME
         if flags:
             credentials = tools.run_flow(flow, store, flags)
-        else: # Needed only for compatibility with Python 2.6                                      
+        else: # Needed only for compatibility with Python 2.6
             credentials = tools.run(flow, store)
     return credentials
 
@@ -117,7 +116,7 @@ def calendar():
     service = discovery.build('calendar', 'v3', http=http)
     eventList = []
 
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time                    
+    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
   #  print('Getting the upcoming 5 events')
     eventsResult = service.events().list(
         calendarId='primary', timeMin=now, maxResults=5, singleEvents=True,
@@ -130,9 +129,9 @@ def calendar():
             'title' : event['summary']
          }
         eventList.append(result)
-    return eventList
+    return jsonify(events=eventList)
 
-    
+
 @socketio.on('connect')
 def test_connect():
     print 'client connected'

@@ -13,9 +13,10 @@ $(document).ready(function(){
             renderTweet();
         },5000);
     });
-    // setInterval(function () {
-    //     Twitter.refreshTweets();
-    // });
+    // todo: refresh twitter list occasionally
+    Calendar.refreshEvents(function () {
+        renderCalendar();
+    });
 
 
     // update widgets when buttons are clicked
@@ -108,6 +109,19 @@ function refreshReminders() {
         return '<li>' + reminder + '</li>';
     });
     $('#reminders').html(reminderStrings.join(''));
+}
+
+function renderCalendar() {
+    var calendarString = '';
+    Calendar.getEvents().forEach(function (event) {
+        var date = new Date(event.start);
+        var timeString = date.toString('hh:mm tt');
+        calendarString += '<li>';
+        calendarString += '<div class="event-start">'+timeString+'</div>';
+        calendarString += '<div class="event-title">'+event.title+'</div>';
+        calendarString += '</li>';
+    });
+    $('.events').html(calendarString);
 }
 
 function speak(message) {

@@ -47,7 +47,8 @@ html, button, input, select, textarea,
 #main {
 	color: white;
 	font-size: 30px;
-	width: 90%;
+	width: 1080px;
+	max-height: 1920px;
 	margin: auto auto;
 	height: 90%;
 	padding: 25px;
@@ -83,7 +84,6 @@ html, button, input, select, textarea,
 	font-family: Open-Light, sans-serif;
 }
 
-
 #reminders-header {
 	display: inline-block;
 	margin: 0 50px 15px;
@@ -91,4 +91,23 @@ html, button, input, select, textarea,
 
 .pure-g {
 	min-height: 30%;
+}
+
+.events {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+.events li {
+	margin: 0;
+}
+
+.event-start {
+	font-family: Open-Bold;
+}
+
+.event-title {
+	font-family: Open-Light;
+	margin-left: 25px;
 }
