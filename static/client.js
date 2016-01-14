@@ -3,6 +3,10 @@ $(document).ready(function(){
     REMINDERS = new ReminderList();
     refreshReminders();
     getWeather();
+    setInterval(function () {
+        getWeather();
+    }, 5*60*1000);
+
 
     // update widgets when buttons are clicked
     $('form#weather').submit(function (event) {
