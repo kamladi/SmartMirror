@@ -27,8 +27,13 @@ body {
 	background: black;
 }
 
-.pure-g h1, .pure-g h2, .pure-g h3, .pure-g h4, .pure-g p, .pure-g li, .pure-g div {
+h1, h2, h3, h4, .pure-g h1, .pure-g h2, .pure-g h3, .pure-g h4 {
 	font-family: Open-Bold, sans-serif;
+	letter-spacing: normal;
+}
+
+.pure-g p, .pure-g li, .pure-g div {
+	font-family: Open-Light, sans-serif;
 	letter-spacing: normal;
 }
 
@@ -114,5 +119,17 @@ html, button, input, select, textarea,
 .event-title {
 	font-family: Open-Light;
 	margin-left: 25px;
+	font-size: 20px;
+}
+
+#settings-google h4, #settings-twitter h4 {
+	margin: 35px 0 5px;
+}
+
+
+input {
+	color: #333;
+}
+#settings-google p {
 	font-size: 20px;
 }

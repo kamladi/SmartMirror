@@ -1,0 +1,41 @@
+<html>
+    <head>
+        <title>Smart Mirror</title>
+    </head>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <link rel="stylesheet" href="static/css/icons.css">
+    <link rel="stylesheet" href="static/css/style.css">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.1.0/annyang.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datejs/1.0/date.min.js"></script>
+    <script src="static/js/reminders.js"></script>
+    <script src="static/js/weather.js"></script>
+    <script src="static/js/twitter.js"></script>
+    <script src="static/js/calendar.js"></script>
+    <body>
+        <div id="main">
+            {% if session['message'] %}
+                <p class="message">{{ session['message'] }}</p>
+            {% endif %}
+            <section id="settings-google">
+                <h4>Google Calendar</h4>
+                {% if google_logged_in %}
+                    <p>Currently Logged in. <a href="/google/logout">Logout</a>.</p>
+                {% else %}
+                    <form action="/google/login">
+                        <input type="submit" value="Sign in to Google Calendar">
+                    </form>
+                {% endif %}
+            </section>
+            <section id="settings-twitter">
+                <form action="/settings/twitter" method="POST">
+                    <h4>Twitter Username</h4>
+                    <input type="text" name="twitter_username" placeholder="{% if twitter_username %}@{{twitter_username}}{% else %}@CNN{% endif %}" >
+                    <input type="submit" value="Save">
+                </form>
+            </section>
+
+        </div>
+    </body>
+</html>

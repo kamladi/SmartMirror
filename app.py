@@ -1,6 +1,6 @@
 import time
 from threading import Thread
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, session, render_template, redirect, url_for
 from flask_socketio import SocketIO, emit
 import eventlet
 import urllib2
@@ -27,7 +27,21 @@ APPLICATION_NAME = 'Google Calendar API SMART MIRROR'
 
 # jank as fuck dictionary to hold usernames and passwords
 profiles = dict()
-current_rfid = None
+current_rfid = '0'
+
+def get_current_profile():
+    global profiles
+    global current_rfid
+    return profiles[current_rfid]
+
+# setup basic structure for user profile settings
+profiles[current_rfid] = {
+    'twitter_username': 'CNN',
+    'google_credentials': None,
+    'reminders': []
+}
+
+print profiles[current_rfid]
 
 # setup Twitter api
 twitter_api = twitter.Api(consumer_key='NANEOT59HbNisCUl680k9EvFz',
@@ -85,25 +99,33 @@ def weather():
 
 @app.route('/twitter')
 def twitter():
-    username = 'CNN'
+    username = get_current_profile()['twitter_username']
+    if username is None:
+        username = 'CNN'
     statuses = twitter_api.GetUserTimeline(screen_name=username)
     status_msgs = [s.text for s in statuses]
 
     return jsonify(username=username, statuses=status_msgs)
 
-@app.route('/login')
-def login():
+@app.route('/google/login')
+def google_login():
     flow = OAuth2WebServerFlow(client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
             scope='https://www.googleapis.com/auth/calendar',
-            redirect_uri='http://localhost:5000/oauth2callback',
+            redirect_uri='http://localhost/google/oauth2callback',
             approval_prompt='force',
             access_type='offline')
 
     auth_uri = flow.step1_get_authorize_url()
     return redirect(auth_uri)
 
-@app.route('/oauth2callback')
+@app.route('/google/logout')
+def google_logout():
+    current_user = get_current_profile()
+    current_user['google_credentials'] = None
+    return redirect(url_for('settings'))
+
+@app.route('/google/oauth2callback')
 def oauth2callback():
     global credentials
     code = request.args.get('code')
@@ -116,19 +138,20 @@ def oauth2callback():
             creds = flow.step2_exchange(code)
         except Exception as e:
             print "Unable to get an access token because ", e.message
-    credentials = creds
-    return redirect(url_for('signup'))
+    current_user = get_current_profile()
+    current_user['google_credentials'] = creds
+    return redirect(url_for('settings'))
 
 # sign up page stuff
-@app.route('/signup')
-def signup():
-    return render_template('signup.html')
-
-@app.route('/signup_submit')
-def register():
-    global profiles
-    prof_dict = dict()
-    return render_template('signup_complete.html')
+@app.route('/settings')
+def settings():
+    current_user = get_current_profile()
+    google_credentials = current_user['google_credentials']
+    google_logged_in = False
+    if google_credentials and google_credentials.invalid is False:
+        google_logged_in = True
+    twitter_username = current_user['twitter_username']
+    return render_template('settings.html', google_logged_in=google_logged_in, twitter_username=twitter_username)
 
 #google calendar stuff
 try:
@@ -137,9 +160,25 @@ try:
 except ImportError:
     flags = None
 
+@app.route('/settings/twitter', methods=['POST'])
+def twitter_settings():
+    current_user = get_current_profile()
+    request_twitter_username = request.form['twitter_username']
+    if request_twitter_username is None:
+        return redirect(url_for('settings'))
+
+    # remove '@' from beginning of username
+    request_twitter_username = request_twitter_username.replace('@','')
+    current_user['twitter_username'] = request_twitter_username
+    session.message = "successfully updated twitter username"
+    return redirect(url_for('settings'))
+
+
 @app.route('/calendar')
 def calendar():
-    global credentials
+    credentials = get_current_profile()['google_credentials']
+    if credentials is None or credentials.invalid:
+        return jsonify(events=[]), 404
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
     eventList = []
