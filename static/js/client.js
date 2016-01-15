@@ -125,7 +125,16 @@ function renderCalendar() {
 }
 
 function renderSongInfo(data) {
-    // TODO
+    $('#spotify-result').fadeOut('fast', function () {
+        if (!data) {
+            return;
+        }
+        var $this = $(this);
+        $this.find('#song-title').text(data.title);
+        $this.find('#song-artist').text(data.artist);
+        $this.find('#song-album').text(data.album);
+        $this.fadeIn('fast');
+    });
 }
 
 function initSockets() {
