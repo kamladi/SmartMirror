@@ -138,16 +138,19 @@ function initSockets() {
     });
 
     socket.on('new song', function (data) {
+        alert('received "new song" event');
         renderSongInfo(data);
     });
 
     socket.on('update calendar', function () {
+        alert('received "update calendar" event');
         Calendar.refreshEvents(function () {
             renderCalendar();
         });
     });
 
     socket.on('update twitter', function () {
+        alert('received "update twitter" event');
         Twitter.refreshTweets();
     });
 
