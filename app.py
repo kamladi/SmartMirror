@@ -44,7 +44,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode='eventlet')
 
-CLIENT_ID = "767898770169-fqonl25jc17v7k89p5070fegsji4g6n9.apps.googleusercontent.com" 
+CLIENT_ID = "767898770169-fqonl25jc17v7k89p5070fegsji4g6n9.apps.googleusercontent.com"
 CLIENT_SECRET = "_-FwXMnuyO7_bu8kTy2EhfqR"
 
 def background_thread():
@@ -174,4 +174,4 @@ def test_disconnect():
 
 if __name__ == "__main__":
     # socketio.run(app)
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=80, debug=True)

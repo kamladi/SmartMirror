@@ -27,7 +27,7 @@ body {
 	background: black;
 }
 
-h1, h2, h3, h4, p, li, div {
+.pure-g h1, .pure-g h2, .pure-g h3, .pure-g h4, .pure-g p, .pure-g li, .pure-g div {
 	font-family: Open-Bold, sans-serif;
 	letter-spacing: normal;
 }
