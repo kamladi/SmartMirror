@@ -23,7 +23,7 @@ import sys
 import Adafruit_PN532 as PN532
 from oauth2client.client import OAuth2WebServerFlow
 import RPi.GPIO as GPIO
-from spotify.play_track import initialize, playSong, nextSong, prevSong, getCurrentSongInfo
+from smartspotify.play_track import initialize, playSong, nextSong, prevSong, getCurrentSongInfo, playPause
 
 
 # stuff needed for authentication google calendar
@@ -33,15 +33,15 @@ APPLICATION_NAME = 'Google Calendar API SMART MIRROR'
 
 #GPIO Setup
 GPIO.setmode(GPIO.BCM)
-BTN_PREV = 15
-BTN_PAUSE = 16
-BTN_NEXT = 17
-BTN_QR = 18
+BTN_PREV = 5
+BTN_PAUSE = 12
+BTN_NEXT = 26
+BTN_QR = 21
 
-GPIO.setup(BTN_PREV, GPIO.IN, pull_up_down=GPIO.PUD.UP)
-GPIO.setup(BTN_PAUSE, GPIO.IN, pull_up_down=GPIO.PUD.UP)
-GPIO.setup(BTN_NEXT, GPIO.IN, pull_up_down=GPIO.PUD.UP)
-GPIO.setup(BTN_QR, GPIO.IN, pull_up_down=GPIO.PUD.UP)
+GPIO.setup(BTN_PREV, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(BTN_PAUSE, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(BTN_NEXT, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(BTN_QR, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 
 # jank as fuck dictionary to hold usernames and passwords
@@ -124,41 +124,54 @@ CLIENT_SECRET = "_-FwXMnuyO7_bu8kTy2EhfqR"
 # QRcode init
 QRcode(app)
 
-def background_thread():
-    print "Starting background thread"
+# Initialize Spotify Music Player
+initialize()
+
+def rfid_thread_fn():
+    print "Starting rfid thread"
     while True:
         time.sleep(5)
         # Read from RFID shield
-    	uid = pn532.read_passive_target()
+    	uid = pn532.read_passive_target(timeout_sec=1)
     	if uid is not(None):
             uid_string = binascii.hexlify(uid)
             print 'Found card with UIS: 0x{0}'.format(uid_string)
             switch_user(uid_string)
 
-        # Read buttons
+
+def buttons_thread_fn():
+    print "Starting buttons thread"
+    while True:
+	time.sleep(0.1)
+    	# Read buttons
         btn_prev_in = GPIO.input(BTN_PREV)
         btn_pause_in = GPIO.input(BTN_PAUSE)
-        btn_pnext_in = GPIO.input(BTN_NEXT)
+        btn_next_in = GPIO.input(BTN_NEXT)
         btn_qr_in = GPIO.input(BTN_QR)
 
         # respond to possible buttons being pressed
-        if btn_prev_in is False:
-            prevSong()
+        if not btn_prev_in:
+	    prevSong()
             socketio.emit('new song', getCurrentSongInfo())
-            time.sleep(0.2)
-        if btn_pause_in is False:
-            pauseSong()
-            time.sleep(0.2)
-        if btn_next_in is False:
+            time.sleep(0.3)
+        if not btn_pause_in:
+            playPause()
+            time.sleep(0.3)
+        if not btn_next_in:
             nextSong()
             socketio.emit('new song', getCurrentSongInfo())
-            time.sleep(0.2)
-        if btn_qr_in is False:
+            time.sleep(0.3)
+        if not btn_qr_in:
             socketio.emit('toggle qr', {});
-            time.sleep(0.2)
+            time.sleep(0.3)
 
-thread = Thread(target=background_thread)
-thread.start()
+rfid_thread = Thread(target=rfid_thread_fn)
+rfid_thread.start()
+
+buttons_thread = Thread(target=buttons_thread_fn)
+buttons_thread.start()
+
+
 
 @app.route('/')
 def index():

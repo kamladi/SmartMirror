@@ -38,7 +38,7 @@ import random
 import time
 import RPi.GPIO as GPIO
 
-import spotify
+import spotify as pyspotify
 
 #set up Raspberry Pi GPIO pins
 
@@ -75,7 +75,7 @@ def playSong():
 
 def on_connection_state_updated(session):
     global logged_in
-    if session.connection.state is spotify.ConnectionState.LOGGED_IN:
+    if session.connection.state is pyspotify.ConnectionState.LOGGED_IN:
         logged_in.set()
 
 
@@ -91,7 +91,7 @@ def initialize():
 	global logged_in
 	global playlist
 	global length
-	config = spotify.Config()
+	config = pyspotify.Config()
 	config.user_agent = 'smart'
 #	config.tracefile = b'/tmp/libspotify-trace.log'
 	#if sys.argv[1:]:
@@ -101,18 +101,18 @@ def initialize():
 
 	# Assuming a spotify_appkey.key in the current dir
 
-	session = spotify.Session(config)
+	session = pyspotify.Session(config)
 	session.login('johnwbird', 'bitterjava60', True)
 	# Process events in the background
-	loop = spotify.EventLoop(session)
+	loop = pyspotify.EventLoop(session)
 	loop.start()
 
 	# Connect an audio sink
-	audio = spotify.AlsaSink(session)
+	audio = pyspotify.AlsaSink(session)
 
 	# Register event listeners 
-	session.on(spotify.SessionEvent.CONNECTION_STATE_UPDATED, on_connection_state_updated)
-	session.on(spotify.SessionEvent.END_OF_TRACK, on_end_of_track)
+	session.on(pyspotify.SessionEvent.CONNECTION_STATE_UPDATED, on_connection_state_updated)
+	session.on(pyspotify.SessionEvent.END_OF_TRACK, on_end_of_track)
 
 	# Assuming a previous login with remember_me=True and a proper logout
 	#session.relogin()
@@ -143,8 +143,17 @@ def prevSong():
 	playSong()
 
 def playPause():
-	if (session.player.state == spotify.PlayerState.PLAYING):
+	if (session.player.state == pyspotify.PlayerState.PLAYING):
 		session.player.pause()
 	else:
 		session.player.play()
 
+def getCurrentSongInfo():
+	global playlist
+	global curSong
+	artists = playlist.tracks[curSong].artists
+	artistsString = (artist.load().name for artist in artists)
+	artistsString =	" ".join(artistsString)
+	album = playlist.tracks[curSong].album.load().name
+	title = playlist.tracks[curSong].name
+	return {"artist": artistsString, "album": album, "title": title}	
