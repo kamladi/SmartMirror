@@ -24,7 +24,6 @@ from oauth2client.client import OAuth2WebServerFlow
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Calendar API SMART MIRROR'
-user_gcal = 'jbird'
 
 # jank as fuck dictionary to hold usernames and passwords
 profiles = dict()
@@ -118,14 +117,14 @@ def oauth2callback():
         except Exception as e:
             print "Unable to get an access token because ", e.message
     credentials = creds
-    return redirect(url_for('index'))
+    return redirect(url_for('signup'))
 
 # sign up page stuff
-#@app.route('/signup')
-#def signup():
-#    return render_template('signup.html')
+@app.route('/signup')
+def signup():
+    return render_template('signup.html')
 
-@app.route('/register')
+@app.route('/signup_submit')
 def register():
     global profiles
     prof_dict = dict()
