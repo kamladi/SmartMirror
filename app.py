@@ -52,55 +52,55 @@ other_usr_1 = '04bef4726d4880'
 other_usr_2 = '04a69a726d4880'
 
 def get_current_profile():
-    global profiles
-    global current_rfid
-    return profiles[current_rfid]
+	global profiles
+	global current_rfid
+	return profiles[current_rfid]
 
 # setup basic structure for user profile settings
 profiles[current_rfid] = {
-    'twitter_username': 'CNN',
-    'google_credentials': None,
-    'reminders': []
+	'twitter_username': 'CNN',
+	'google_credentials': None,
+	'reminders': []
 }
 profiles[other_usr_1] = {
-    'twitter_username': 'nytimes',
-    'google_credentials': None,
-    'reminders': []
+	'twitter_username': 'nytimes',
+	'google_credentials': None,
+	'reminders': []
 }
 profiles[other_usr_2] = {
-    'twitter_username': 'kanyewest',
-    'google_credentials': None,
-    'reminders': []
+	'twitter_username': 'kanyewest',
+	'google_credentials': None,
+	'reminders': []
 }
 
 # helper function to switch users (or create new user) and trigger socket events
 # to update the mirror
 def switch_user(rfid):
-    global current_rfid
-    global profiles
-    if current_rfid == rfid:
-        return
-    # new user, create new profile
-    if rfid not in profiles:
-        print "NEW USER RFID: ", rfid
-        new_profile = {
-            'twitter_username': 'coffeedad',
-            'google_credentials': None,
-            'reminders': []
-        }
-        profiles[rfid] = new_profile
-        socketio.emit('new user', {'rfid': rfid})
+	global current_rfid
+	global profiles
+	if current_rfid == rfid:
+		return
+	# new user, create new profile
+	if rfid not in profiles:
+		print "NEW USER RFID: ", rfid
+		new_profile = {
+			'twitter_username': 'coffeedad',
+			'google_credentials': None,
+			'reminders': []
+		}
+		profiles[rfid] = new_profile
+		socketio.emit('new user', {'rfid': rfid})
 
-    # set current user id to the given rfid
-    current_rfid = rfid
-    socketio.emit('update calendar', {'rfid': rfid})
-    socketio.emit('update twitter', {'rfid': rfid})
+	# set current user id to the given rfid
+	current_rfid = rfid
+	socketio.emit('update calendar', {'rfid': rfid})
+	socketio.emit('update twitter', {'rfid': rfid})
 
 # setup Twitter api
 twitter_api = twitter.Api(consumer_key='NANEOT59HbNisCUl680k9EvFz',
-                      consumer_secret='kx3FPXSm004m9VAOMj8lnCx7A5UNdmQ4uh60VPL18M0YrQYPzN',
-                      access_token_key='275410740-6Bsxpm2yY0peqgwEUzvN4df8f466WIXIAmvtZceh',
-                      access_token_secret='ZYafFJtR8JXY4PsMYQCyRT4piYkP2xwEjFg2IPgzwHc9b')
+					  consumer_secret='kx3FPXSm004m9VAOMj8lnCx7A5UNdmQ4uh60VPL18M0YrQYPzN',
+					  access_token_key='275410740-6Bsxpm2yY0peqgwEUzvN4df8f466WIXIAmvtZceh',
+					  access_token_secret='ZYafFJtR8JXY4PsMYQCyRT4piYkP2xwEjFg2IPgzwHc9b')
 
 #Config for Rasp Pi
 CS = 18
@@ -128,42 +128,42 @@ QRcode(app)
 initialize()
 
 def rfid_thread_fn():
-    print "Starting rfid thread"
-    while True:
-        time.sleep(5)
-        # Read from RFID shield
-    	uid = pn532.read_passive_target(timeout_sec=1)
-    	if uid is not(None):
-            uid_string = binascii.hexlify(uid)
-            print 'Found card with UIS: 0x{0}'.format(uid_string)
-            switch_user(uid_string)
+	print "Starting rfid thread"
+	while True:
+		time.sleep(5)
+		# Read from RFID shield
+		uid = pn532.read_passive_target(timeout_sec=1)
+		if uid is not(None):
+			uid_string = binascii.hexlify(uid)
+			print 'Found card with UIS: 0x{0}'.format(uid_string)
+			switch_user(uid_string)
 
 
 def buttons_thread_fn():
-    print "Starting buttons thread"
-    while True:
-	time.sleep(0.1)
-    	# Read buttons
-        btn_prev_in = GPIO.input(BTN_PREV)
-        btn_pause_in = GPIO.input(BTN_PAUSE)
-        btn_next_in = GPIO.input(BTN_NEXT)
-        btn_qr_in = GPIO.input(BTN_QR)
+	print "Starting buttons thread"
+	while True:
+		time.sleep(0.1)
+		# Read buttons
+		btn_prev_in = GPIO.input(BTN_PREV)
+		btn_pause_in = GPIO.input(BTN_PAUSE)
+		btn_next_in = GPIO.input(BTN_NEXT)
+		btn_qr_in = GPIO.input(BTN_QR)
 
-        # respond to possible buttons being pressed
-        if not btn_prev_in:
-	    prevSong()
-            socketio.emit('new song', getCurrentSongInfo())
-            time.sleep(0.3)
-        if not btn_pause_in:
-            playPause()
-            time.sleep(0.3)
-        if not btn_next_in:
-            nextSong()
-            socketio.emit('new song', getCurrentSongInfo())
-            time.sleep(0.3)
-        if not btn_qr_in:
-            socketio.emit('toggle qr', {});
-            time.sleep(0.3)
+		# respond to possible buttons being pressed
+		if not btn_prev_in:
+			prevSong()
+			socketio.emit('new song', getCurrentSongInfo())
+			time.sleep(0.3)
+		if not btn_pause_in:
+			playPause()
+			time.sleep(0.3)
+		if not btn_next_in:
+			nextSong()
+			socketio.emit('new song', getCurrentSongInfo())
+			time.sleep(0.3)
+		if not btn_qr_in:
+			socketio.emit('toggle qr', {});
+			time.sleep(0.3)
 
 rfid_thread = Thread(target=rfid_thread_fn)
 rfid_thread.start()
@@ -175,164 +175,164 @@ buttons_thread.start()
 
 @app.route('/')
 def index():
-    return render_template('index.html', {
-            qr_string="dankmirror.wv.cc.cmu.edu/settings"
-        })
+	return render_template('index.html', {
+			qr_string="dankmirror.wv.cc.cmu.edu/settings"
+		})
 
 
 @app.route('/qr')
 def qr():
-    qr_display = 1
-    #if (current_rfid in profiles)
-        #qr_display = 0
-    return jsonify(line=render_template('qr.html',
-        qr_string="dankmirror.wv.cc.cmu.edu/settings"),
-        display=qr_display)
+	qr_display = 1
+	#if (current_rfid in profiles)
+		#qr_display = 0
+	return jsonify(line=render_template('qr.html',
+		qr_string="dankmirror.wv.cc.cmu.edu/settings"),
+		display=qr_display)
 
 @app.route('/funsies')
 def funsies():
-     socketio.emit('update calendar', {'data': 'Server generated event'})
-     socketio.emit('update twitter', {'data': 'Server generated event'})
-     return ''
+	 socketio.emit('update calendar', {'data': 'Server generated event'})
+	 socketio.emit('update twitter', {'data': 'Server generated event'})
+	 return ''
 
 @app.route('/weather')
 def weather():
-    API_KEY = 'f31628e0ca22e208'
-    URL = 'http://api.wunderground.com/api/' + API_KEY + '/conditions/q/PA/Pittsburgh.json'
-    f = urllib2.urlopen(URL)
-    json_string = f.read()
-    parsed_json = json.loads(json_string)
-    current_observation = parsed_json['current_observation']
+	API_KEY = 'f31628e0ca22e208'
+	URL = 'http://api.wunderground.com/api/' + API_KEY + '/conditions/q/PA/Pittsburgh.json'
+	f = urllib2.urlopen(URL)
+	json_string = f.read()
+	parsed_json = json.loads(json_string)
+	current_observation = parsed_json['current_observation']
 
-    result = {
-        'location': current_observation['display_location']['city'],
-        'temperature': current_observation['temp_f'],
-        'weather_desc': current_observation['weather'],
-        'icon_url': current_observation['icon'],
-        'icon_url': current_observation['icon_url']
-    }
+	result = {
+		'location': current_observation['display_location']['city'],
+		'temperature': current_observation['temp_f'],
+		'weather_desc': current_observation['weather'],
+		'icon_url': current_observation['icon'],
+		'icon_url': current_observation['icon_url']
+	}
 
-    f.close()
-    return jsonify(**result)
+	f.close()
+	return jsonify(**result)
 
 
 @app.route('/twitter')
 def twitter():
-    username = get_current_profile()['twitter_username']
-    if username is None:
-        username = 'CNN'
-    statuses = twitter_api.GetUserTimeline(screen_name=username)
-    status_msgs = [s.text for s in statuses]
+	username = get_current_profile()['twitter_username']
+	if username is None:
+		username = 'CNN'
+	statuses = twitter_api.GetUserTimeline(screen_name=username)
+	status_msgs = [s.text for s in statuses]
 
-    return jsonify(username=username, statuses=status_msgs)
+	return jsonify(username=username, statuses=status_msgs)
 
 @app.route('/google/login')
 def google_login():
-    flow = OAuth2WebServerFlow(client_id=CLIENT_ID,
-            client_secret=CLIENT_SECRET,
-            scope='https://www.googleapis.com/auth/calendar',
-            redirect_uri='http://localhost/google/oauth2callback',
-            approval_prompt='force',
-            access_type='offline')
+	flow = OAuth2WebServerFlow(client_id=CLIENT_ID,
+			client_secret=CLIENT_SECRET,
+			scope='https://www.googleapis.com/auth/calendar',
+			redirect_uri='http://localhost/google/oauth2callback',
+			approval_prompt='force',
+			access_type='offline')
 
-    auth_uri = flow.step1_get_authorize_url()
-    return redirect(auth_uri)
+	auth_uri = flow.step1_get_authorize_url()
+	return redirect(auth_uri)
 
 @app.route('/google/logout')
 def google_logout():
-    current_user = get_current_profile()
-    current_user['google_credentials'] = None
-    return redirect(url_for('settings'))
+	current_user = get_current_profile()
+	current_user['google_credentials'] = None
+	return redirect(url_for('settings'))
 
 @app.route('/google/oauth2callback')
 def oauth2callback():
-    global credentials
-    global current_rfid
-    code = request.args.get('code')
-    if code:
-        flow = OAuth2WebServerFlow(CLIENT_ID,
-                    CLIENT_SECRET,
-                    "https://www.googleapis.com/auth/calendar")
-        flow.redirect_uri = request.base_url
-        try:
-            creds = flow.step2_exchange(code)
-        except Exception as e:
-            print "Unable to get an access token because ", e.message
-    current_user = get_current_profile()
-    current_user['google_credentials'] = creds
-    socketio.emit('update calendar', {'rfid', current_rfid})
-    return redirect(url_for('settings'))
+	global credentials
+	global current_rfid
+	code = request.args.get('code')
+	if code:
+		flow = OAuth2WebServerFlow(CLIENT_ID,
+					CLIENT_SECRET,
+					"https://www.googleapis.com/auth/calendar")
+		flow.redirect_uri = request.base_url
+		try:
+			creds = flow.step2_exchange(code)
+		except Exception as e:
+			print "Unable to get an access token because ", e.message
+	current_user = get_current_profile()
+	current_user['google_credentials'] = creds
+	socketio.emit('update calendar', {'rfid', current_rfid})
+	return redirect(url_for('settings'))
 
 # sign up page stuff
 @app.route('/settings')
 def settings():
-    current_user = get_current_profile()
-    google_credentials = current_user['google_credentials']
-    google_logged_in = False
-    if google_credentials and google_credentials.invalid is False:
-        google_logged_in = True
-    twitter_username = current_user['twitter_username']
-    return render_template('settings.html', google_logged_in=google_logged_in, twitter_username=twitter_username)
+	current_user = get_current_profile()
+	google_credentials = current_user['google_credentials']
+	google_logged_in = False
+	if google_credentials and google_credentials.invalid is False:
+		google_logged_in = True
+	twitter_username = current_user['twitter_username']
+	return render_template('settings.html', google_logged_in=google_logged_in, twitter_username=twitter_username)
 
 #google calendar stuff
 try:
-    import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
+	import argparse
+	flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
 except ImportError:
-    flags = None
+	flags = None
 
 @app.route('/settings/twitter', methods=['POST'])
 def twitter_settings():
-    global current_rfid
-    current_user = get_current_profile()
-    request_twitter_username = request.form['twitter_username']
-    if request_twitter_username is None:
-        return redirect(url_for('settings'))
+	global current_rfid
+	current_user = get_current_profile()
+	request_twitter_username = request.form['twitter_username']
+	if request_twitter_username is None:
+		return redirect(url_for('settings'))
 
-    # remove '@' from beginning of username
-    request_twitter_username = request_twitter_username.replace('@','')
-    current_user['twitter_username'] = request_twitter_username
-    socketio.emit('update twitter', {'rfid', current_rfid})
-    session.message = "successfully updated twitter username"
-    return redirect(url_for('settings'))
+	# remove '@' from beginning of username
+	request_twitter_username = request_twitter_username.replace('@','')
+	current_user['twitter_username'] = request_twitter_username
+	socketio.emit('update twitter', {'rfid', current_rfid})
+	session.message = "successfully updated twitter username"
+	return redirect(url_for('settings'))
 
 
 @app.route('/calendar')
 def calendar():
-    credentials = get_current_profile()['google_credentials']
-    if credentials is None or credentials.invalid:
-        return jsonify(events=[]), 404
-    http = credentials.authorize(httplib2.Http())
-    service = discovery.build('calendar', 'v3', http=http)
-    eventList = []
+	credentials = get_current_profile()['google_credentials']
+	if credentials is None or credentials.invalid:
+		return jsonify(events=[]), 404
+	http = credentials.authorize(httplib2.Http())
+	service = discovery.build('calendar', 'v3', http=http)
+	eventList = []
 
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    laterTime = datetime.datetime.utcnow()+ datetime.timedelta(days=1)
-    later = laterTime.isoformat() + 'Z'
+	now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+	laterTime = datetime.datetime.utcnow()+ datetime.timedelta(days=1)
+	later = laterTime.isoformat() + 'Z'
 
   #  print('Getting the upcoming 5 events')
-    eventsResult = service.events().list(
-        calendarId='primary', timeMin=now, timeMax =later, maxResults=5, singleEvents=True,
-        orderBy='startTime').execute()
-    events = eventsResult.get('items', [])
+	eventsResult = service.events().list(
+		calendarId='primary', timeMin=now, timeMax =later, maxResults=5, singleEvents=True,
+		orderBy='startTime').execute()
+	events = eventsResult.get('items', [])
 
-    for event in events:
-        result = {
-            'start' : event['start'].get('dateTime', event['start'].get('date')),
-            'title' : event['summary']
-         }
-        eventList.append(result)
-    return jsonify(events=eventList)
+	for event in events:
+		result = {
+			'start' : event['start'].get('dateTime', event['start'].get('date')),
+			'title' : event['summary']
+		 }
+		eventList.append(result)
+	return jsonify(events=eventList)
 
 
 @socketio.on('connect')
 def test_connect():
-    print 'client connected'
+	print 'client connected'
 
 @socketio.on('disconnect')
 def test_disconnect():
-    print 'Client disconnected'
+	print 'Client disconnected'
 
 if __name__ == "__main__":
-    # socketio.run(app)
-    socketio.run(app,host='0.0.0.0', port=80, debug=True)
+	# socketio.run(app)
+	socketio.run(app,host='0.0.0.0', port=80, debug=True)
