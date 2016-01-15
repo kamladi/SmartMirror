@@ -201,7 +201,6 @@ def calendar():
         eventList.append(result)
     return jsonify(events=eventList)
 
-
 @socketio.on('connect')
 def test_connect():
     print 'client connected'

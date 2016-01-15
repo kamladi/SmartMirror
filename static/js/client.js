@@ -124,6 +124,35 @@ function renderCalendar() {
     $('.events').html(calendarString);
 }
 
+function renderSongInfo(data) {
+    // TODO
+}
+
+function initSockets() {
+    var socket = io();
+    io.on('connection', function (socket) {
+        console.log('socket connected');
+        socket.on('disconnect', function () {
+            console.log('socket disconnected');
+        });
+    });
+
+    socket.on('new song', function (data) {
+        renderSongInfo(data);
+    });
+
+    socket.on('update calendar', function () {
+        Calendar.refreshEvents(function () {
+            renderCalendar();
+        });
+    });
+
+    socket.on('update twitter', function () {
+        Twitter.refreshTweets();
+    });
+
+}
+
 function speak(message) {
     var u = new SpeechSynthesisUtterance();
     u.text = message;
