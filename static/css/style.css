@@ -27,8 +27,13 @@ body {
 	background: black;
 }
 
-h1, h2, h3, h4, p, li, div {
+h1, h2, h3, h4, .pure-g h1, .pure-g h2, .pure-g h3, .pure-g h4 {
 	font-family: Open-Bold, sans-serif;
+	letter-spacing: normal;
+}
+
+.pure-g p, .pure-g li, .pure-g div {
+	font-family: Open-Light, sans-serif;
 	letter-spacing: normal;
 }
 
@@ -47,11 +52,14 @@ html, button, input, select, textarea,
 #main {
 	color: white;
 	font-size: 30px;
-	width: 1080px;
-	height: 1920px;
-	margin: auto auto;
-	height: 90%;
-	padding: 25px;
+	width: 850px;
+	margin: 2.5% auto;
+	height: 95%;
+}
+
+.signup-form {
+	color: black;
+	font-size: 20px;
 }
 
 .weather-icon {
@@ -63,7 +71,7 @@ html, button, input, select, textarea,
 
 .weather-temp {
 	margin-left: 60px;
-	font-size: 3em;
+	font-size: 2.7em;
 }
 
 .weather-desc {
@@ -71,8 +79,14 @@ html, button, input, select, textarea,
 	margin-top: -10px;
 }
 
-#twitter-result, #reminder-result {
+#twitter-result, #reminder-result , #qr-result{
 	position: relative;
+}
+
+#qr-img {
+    background: white;
+    padding: 10px;
+    display: inline-block;
 }
 
 #twitter-username {
@@ -111,5 +125,17 @@ html, button, input, select, textarea,
 .event-title {
 	font-family: Open-Light;
 	margin-left: 25px;
+	font-size: 20px;
+}
+
+#settings-google h4, #settings-twitter h4 {
+	margin: 35px 0 5px;
+}
+
+
+input {
+	color: #333;
+}
+#settings-google p {
 	font-size: 20px;
 }
