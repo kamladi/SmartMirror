@@ -22,12 +22,27 @@ import binascii
 import sys
 import Adafruit_PN532 as PN532
 from oauth2client.client import OAuth2WebServerFlow
+import RPi.GPIO as GPIO
+from spotify.play_track import initialize, playSong, nextSong, prevSong, getCurrentSongInfo
 
 
 # stuff needed for authentication google calendar
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Calendar API SMART MIRROR'
+
+#GPIO Setup
+GPIO.setmode(GPIO.BCM)
+BTN_PREV = 15
+BTN_PAUSE = 16
+BTN_NEXT = 17
+BTN_QR = 18
+
+GPIO.setup(BTN_PREV, GPIO.IN, pull_up_down=GPIO.PUD.UP)
+GPIO.setup(BTN_PAUSE, GPIO.IN, pull_up_down=GPIO.PUD.UP)
+GPIO.setup(BTN_NEXT, GPIO.IN, pull_up_down=GPIO.PUD.UP)
+GPIO.setup(BTN_QR, GPIO.IN, pull_up_down=GPIO.PUD.UP)
+
 
 # jank as fuck dictionary to hold usernames and passwords
 profiles = dict()
@@ -113,11 +128,35 @@ def background_thread():
     print "Starting background thread"
     while True:
         time.sleep(5)
+
+        # Read from RFID shield
     	uid = pn532.read_passive_target()
     	if uid is not(None):
             uid_string = binascii.hexlify(uid)
             print 'Found card with UIS: 0x{0}'.format(uid_string)
             switch_user(uid_string)
+
+        # Read buttons
+        btn_prev_in = GPIO.input(BTN_PREV)
+        btn_pause_in = GPIO.input(BTN_PAUSE)
+        btn_pnext_in = GPIO.input(BTN_NEXT)
+        btn_qr_in = GPIO.input(BTN_QR)
+
+        # respond to possible buttons being pressed
+        if btn_prev_in is False:
+            prevSong()
+            socketio.emit('new song', getCurrentSongInfo())
+            time.sleep(0.2)
+        if btn_pause_in is False:
+            pauseSong()
+            time.sleep(0.2)
+        if btn_next_in is False:
+            nextSong()
+            socketio.emit('new song', getCurrentSongInfo())
+            time.sleep(0.2)
+        if btn_qr_in is False:
+            socketio.emit('toggle qr', {});
+            time.sleep(0.2)
 
 
 thread = Thread(target=background_thread)
