@@ -65,6 +65,8 @@ $(document).ready(function(){
 
       annyang.start();
     }
+
+    initSockets();
 });
 
 /**
@@ -139,11 +141,11 @@ function renderSongInfo(data) {
 
 function initSockets() {
     var socket = io();
-    io.on('connection', function (socket) {
+    socket.on('connect', function (socket) {
         console.log('socket connected');
-        socket.on('disconnect', function () {
-            console.log('socket disconnected');
-        });
+    });
+    socket.on('disconnect', function () {
+        console.log('socket disconnected');
     });
 
     socket.on('new song', function (data) {
