@@ -201,6 +201,15 @@ function initSockets() {
         Twitter.refreshTweets(cycleTweets);
     });
 
+    socket.on('toggle qr', function () {
+        var $qr = $('#qr-img');
+        if ($qr.is(':visible')) {
+            $qr.fadeOut('fast');
+        } else {
+            $qr.fadeIn('fast');
+        }
+    });
+
 }
 
 function speak(message) {
