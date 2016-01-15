@@ -47,11 +47,9 @@ html, button, input, select, textarea,
 #main {
 	color: white;
 	font-size: 30px;
-	width: 1080px;
-	height: 1920px;
-	margin: auto auto;
-	height: 90%;
-	padding: 25px;
+	width: 850px;
+	margin: 2.5% auto;
+	height: 95%;
 }
 
 .weather-icon {
@@ -63,7 +61,7 @@ html, button, input, select, textarea,
 
 .weather-temp {
 	margin-left: 60px;
-	font-size: 3em;
+	font-size: 2.7em;
 }
 
 .weather-desc {
