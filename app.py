@@ -1,11 +1,12 @@
 import time
 from threading import Thread
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for
 from flask_socketio import SocketIO, emit
 import eventlet
 import urllib2
 import json
 from flask import jsonify
+from flask import request
 import twitter
 from apiclient import discovery
 from apiclient.discovery import build
@@ -16,11 +17,18 @@ import httplib2
 import os
 import datetime
 
+from oauth2client.client import OAuth2WebServerFlow
+
+
 # stuff needed for authentication google calendar
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Calendar API SMART MIRROR'
 user_gcal = 'jbird'
+
+# jank as fuck dictionary to hold usernames and passwords
+profiles = dict()
+current_rfid = None
 
 # setup Twitter api
 twitter_api = twitter.Api(consumer_key='NANEOT59HbNisCUl680k9EvFz',
@@ -36,6 +44,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode='eventlet')
 
+CLIENT_ID = "767898770169-fqonl25jc17v7k89p5070fegsji4g6n9.apps.googleusercontent.com" 
+CLIENT_SECRET = "_-FwXMnuyO7_bu8kTy2EhfqR"
 
 def background_thread():
     """Example of how to send server generated events to clients."""
@@ -79,7 +89,47 @@ def twitter():
     username = 'CNN'
     statuses = twitter_api.GetUserTimeline(screen_name=username)
     status_msgs = [s.text for s in statuses]
+
     return jsonify(username=username, statuses=status_msgs)
+
+@app.route('/login')
+def login():
+    flow = OAuth2WebServerFlow(client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+            scope='https://www.googleapis.com/auth/calendar',
+            redirect_uri='http://localhost:5000/oauth2callback',
+            approval_prompt='force',
+            access_type='offline')
+
+    auth_uri = flow.step1_get_authorize_url()
+    return redirect(auth_uri)
+
+@app.route('/oauth2callback')
+def oauth2callback():
+    global credentials
+    code = request.args.get('code')
+    if code:
+        flow = OAuth2WebServerFlow(CLIENT_ID,
+                    CLIENT_SECRET,
+                    "https://www.googleapis.com/auth/calendar")
+        flow.redirect_uri = request.base_url
+        try:
+            creds = flow.step2_exchange(code)
+        except Exception as e:
+            print "Unable to get an access token because ", e.message
+    credentials = creds
+    return redirect(url_for('index'))
+
+# sign up page stuff
+#@app.route('/signup')
+#def signup():
+#    return render_template('signup.html')
+
+@app.route('/register')
+def register():
+    global profiles
+    prof_dict = dict()
+    return render_template('signup_complete.html')
 
 #google calendar stuff
 try:
@@ -88,30 +138,9 @@ try:
 except ImportError:
     flags = None
 
-
-
-def gcal_get_credentials():
-    home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.credentials.', user_gcal)
-    if not os.path.exists(credential_dir):
-        os.makedirs(credential_dir)
-    credential_path = os.path.join(credential_dir,
-                                   'calendar-smart-mirror.json')
-
-    store = oauth2client.file.Storage(credential_path)
-    credentials = store.get()
-    if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
-        flow.user_agent = APPLICATION_NAME
-        if flags:
-            credentials = tools.run_flow(flow, store, flags)
-        else: # Needed only for compatibility with Python 2.6
-            credentials = tools.run(flow, store)
-    return credentials
-
 @app.route('/calendar')
 def calendar():
-    credentials = gcal_get_credentials()
+    global credentials
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
     eventList = []

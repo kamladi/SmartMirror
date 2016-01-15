@@ -52,6 +52,11 @@ html, button, input, select, textarea,
 	height: 95%;
 }
 
+.signup-form {
+	color: black;
+	font-size: 20px;
+}
+
 .weather-icon {
 	display: block;
 	width: 60px;
