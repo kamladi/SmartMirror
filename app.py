@@ -100,22 +100,18 @@ def background_thread():
         count += 1
         time.sleep(10)
         current_rfid = other_usr_1
-        socketio.emit('update calendar', {'data': 'Server generated event', 'count':count}) 
-        socketio.emit('update twitter', {'data': 'Server generated event', 'count': count})
+        # socketio.emit('update calendar', {'data': 'Server generated event', 'count':count})
+        # socketio.emit('update twitter', {'data': 'Server generated event', 'count': count})
         print 'should be sending updates for usr1'
         time.sleep(10)
         current_rfid = other_usr_2
-        socketio.emit('update calendar', {'data': 'Server generated event', 'co\
-unt':count})
-        socketio.emit('update twitter', {'data': 'Server generated event', 'cou\
-nt': count})
+        # socketio.emit('update calendar', {'data': 'Server generated event', 'count':count})
+        # socketio.emit('update twitter', {'data': 'Server generated event', 'count': count})
         print 'should be sending updates for usr2'
         time.sleep(10)
         current_rfid = usr_0
-        socketio.emit('update calendar', {'data': 'Server generated event', 'co\
-unt':count})
-        socketio.emit('update twitter', {'data': 'Server generated event', 'cou\
-nt': count})
+        # socketio.emit('update calendar', {'data': 'Server generated event', 'count':count})
+        # socketio.emit('update twitter', {'data': 'Server generated event', 'count': count})
         print 'should be sending updates for usr0'
         """uid =pn532.read_passive_target()
         if uid is not(None):
@@ -136,7 +132,7 @@ def qr():
     qr_display = 1
     #if (current_rfid in profiles)
         #qr_display = 0
-    return jsonify(line=render_template('qr.html', 
+    return jsonify(line=render_template('qr.html',
         qr_string="dankmirror.wv.cc.cmu.edu/settings"),
         display=qr_display)
 
@@ -270,6 +266,17 @@ def calendar():
          }
         eventList.append(result)
     return jsonify(events=eventList)
+
+@app.route('/switch/<rfid>')
+def switch_user(rfid):
+    global current_rfid
+    print 'curr user', current_rfid
+    current_rfid = rfid
+    socketio.emit('update calendar', {'data': 'Server generated event'})
+    socketio.emit('update twitter', {'data': 'Server generated event'})
+    print 'new user', current_rfid
+    return "updated user"
+
 
 @socketio.on('connect')
 def test_connect():
