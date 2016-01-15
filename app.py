@@ -231,7 +231,7 @@ def google_login():
 	flow = OAuth2WebServerFlow(client_id=CLIENT_ID,
 			client_secret=CLIENT_SECRET,
 			scope='https://www.googleapis.com/auth/calendar',
-			redirect_uri='http://localhost/google/oauth2callback',
+			redirect_uri='http://dankmirror.wv.cc.cmu.edu/google/oauth2callback',
 			approval_prompt='force',
 			access_type='offline')
 
