@@ -15,6 +15,11 @@ from oauth2client import tools
 import httplib2
 import os
 import datetime
+import binascii
+import sys
+
+import Adafruit_PN532 as PN532
+
 
 # stuff needed for authentication google calendar
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
@@ -27,7 +32,14 @@ twitter_api = twitter.Api(consumer_key='NANEOT59HbNisCUl680k9EvFz',
                       consumer_secret='kx3FPXSm004m9VAOMj8lnCx7A5UNdmQ4uh60VPL18M0YrQYPzN',
                       access_token_key='275410740-6Bsxpm2yY0peqgwEUzvN4df8f466WIXIAmvtZceh',
                       access_token_secret='ZYafFJtR8JXY4PsMYQCyRT4piYkP2xwEjFg2IPgzwHc9b')
-
+#Config for Rasp Pi
+CS = 18
+MOSI = 23
+MISO = 24
+SCLK = 25
+pn532 = PN532.PN532(cs=CS, sclk =SCLK, mosi=MOSI, miso=MISO)
+pn532.begin()
+pn532.SAM_configuration()
 
 # lol why is this needed
 eventlet.monkey_patch()
@@ -44,6 +56,9 @@ def background_thread():
     while True:
         time.sleep(5)
         count += 1
+	uid = pn532.read_passive_target()
+	if uid is not(None):
+		print 'Found card with UIS: 0x{0}'.format(binascii.hexlify(uid))
         # socketio.emit('response', {'data': 'Server generated event', 'count': count})
 
 thread = Thread(target=background_thread)
@@ -145,4 +160,4 @@ def test_disconnect():
 
 if __name__ == "__main__":
     # socketio.run(app)
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=80, debug=True)
