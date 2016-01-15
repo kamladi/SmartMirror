@@ -79,8 +79,14 @@ html, button, input, select, textarea,
 	margin-top: -10px;
 }
 
-#twitter-result, #reminder-result {
+#twitter-result, #reminder-result , #qr-result{
 	position: relative;
+}
+
+#qr-img {
+    background: white;
+    padding: 10px;
+    display: inline-block;
 }
 
 #twitter-username {

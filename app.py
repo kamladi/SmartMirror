@@ -7,6 +7,7 @@ import urllib2
 import json
 from flask import jsonify
 from flask import request
+from flask.ext.qrcode import QRcode
 import twitter
 from apiclient import discovery
 from apiclient.discovery import build
@@ -60,6 +61,9 @@ socketio = SocketIO(app, async_mode='eventlet')
 CLIENT_ID = "767898770169-fqonl25jc17v7k89p5070fegsji4g6n9.apps.googleusercontent.com"
 CLIENT_SECRET = "_-FwXMnuyO7_bu8kTy2EhfqR"
 
+#QRcode init
+QRcode(app)
+
 def background_thread():
     """Example of how to send server generated events to clients."""
     count = 0
@@ -75,6 +79,16 @@ thread.start()
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.route('/qr')
+def qr():
+    qr_display = 1
+    #if (current_rfid in profiles)
+        #qr_display = 0
+    return jsonify(line=render_template('qr.html', 
+        qr_string="dankmirror.wv.cc.cmu.edu/settings"),
+        display=qr_display)
 
 @app.route('/weather')
 def weather():
