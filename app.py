@@ -140,6 +140,12 @@ def qr():
         qr_string="dankmirror.wv.cc.cmu.edu/settings"),
         display=qr_display)
 
+@app.route('/funsies')
+def funsies():
+     socketio.emit('update calendar', {'data': 'Server generated event'})
+     socketio.emit('update twitter', {'data': 'Server generated event'})
+     return ''
+
 @app.route('/weather')
 def weather():
     API_KEY = 'f31628e0ca22e208'
