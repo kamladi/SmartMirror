@@ -1,3 +1,4 @@
+
 import time
 from threading import Thread
 from flask import Flask, session, render_template, redirect, url_for
@@ -16,6 +17,10 @@ from oauth2client import tools
 import httplib2
 import os
 import datetime
+import binascii
+import sys
+import operator
+#import Adafruit_PN532 as PN532
 
 from oauth2client.client import OAuth2WebServerFlow
 
@@ -27,7 +32,10 @@ APPLICATION_NAME = 'Google Calendar API SMART MIRROR'
 
 # jank as fuck dictionary to hold usernames and passwords
 profiles = dict()
-current_rfid = '0'
+usr_0 = '0'
+current_rfid = usr_0
+other_usr_1 = '1034'
+other_usr_2 = '201'
 
 def get_current_profile():
     global profiles
@@ -40,6 +48,16 @@ profiles[current_rfid] = {
     'google_credentials': None,
     'reminders': []
 }
+profiles[other_usr_1] = {
+    'twitter_username': 'nytimes',
+    'google_credentials': None,
+    'reminders': []
+}
+profiles[other_usr_2] = {
+    'twitter_username': 'kanyewest',
+    'google_credentials': None,
+    'reminders': []
+}
 
 print profiles[current_rfid]
 
@@ -49,7 +67,16 @@ twitter_api = twitter.Api(consumer_key='NANEOT59HbNisCUl680k9EvFz',
                       access_token_key='275410740-6Bsxpm2yY0peqgwEUzvN4df8f466WIXIAmvtZceh',
                       access_token_secret='ZYafFJtR8JXY4PsMYQCyRT4piYkP2xwEjFg2IPgzwHc9b')
 
-
+#stuff for rfid
+#commented out because not really using
+"""CS = 18
+MOSI = 23
+MISO = 24
+SCLK = 25
+pn532 = PN532.PN532(cs=CS, sclk=SCLK, mosi=MOSI, miso=MISO)
+pn532.begin()
+pn532.SAM_configuration()
+"""
 # lol why is this needed
 eventlet.monkey_patch()
 
@@ -67,6 +94,29 @@ def background_thread():
     while True:
         time.sleep(5)
         count += 1
+        time.sleep(10)
+        current_rfid = other_usr_1
+        socketio.emit('update calendar', {'data': 'Server generated event', 'count':count}) 
+        socketio.emit('update twitter', {'data': 'Server generated event', 'count': count})
+        print 'should be sending updates for usr1'
+        time.sleep(10)
+        current_rfid = other_usr_2
+        socketio.emit('update calendar', {'data': 'Server generated event', 'co\
+unt':count})
+        socketio.emit('update twitter', {'data': 'Server generated event', 'cou\
+nt': count})
+        print 'should be sending updates for usr2'
+        time.sleep(10)
+        current_rfid = usr_0
+        socketio.emit('update calendar', {'data': 'Server generated event', 'co\
+unt':count})
+        socketio.emit('update twitter', {'data': 'Server generated event', 'cou\
+nt': count})
+        print 'should be sending updates for usr0'
+        """uid =pn532.read_passive_target()
+        if uid is not(None):
+        #trigger event
+        print'CARD with uid: 0x{0}'.format(binascii.hexlify(uid))"""
         # socketio.emit('response', {'data': 'Server generated event', 'count': count})
 
 thread = Thread(target=background_thread)
