@@ -7,13 +7,7 @@ $(document).ready(function(){
     setInterval(function () {
         getWeather();
     }, 5*60*1000);
-    Twitter.refreshTweets(function () {
-        renderTweet();
-        setInterval(function () {
-            Twitter.nextTweet();
-            renderTweet();
-        },5000);
-    });
+    Twitter.refreshTweets(cycleTweets);
     // todo: refresh twitter list occasionally
     Calendar.refreshEvents(function () {
         renderCalendar();
@@ -117,12 +111,32 @@ function speakWeather(weather) {
     speak(msg);
 }
 
+function cycleTweets() {
+    renderTweet();
+    if (Twitter.intervalId) {
+        clearInterval(Twitter.intervalId);
+    }
+    Twitter.intervalId = setInterval(function () {
+        Twitter.nextTweet();
+        renderTweet();
+    }, 5000);
+}
+
 function renderTweet() {
     var curTweet = Twitter.getCurrTweet();
     curTweet = curTweet.replace('.@','@');
     // remove links from tweets
     curTweet = curTweet.replace(/(?:https?|ftp):\/\/[\n\S]+/g,'');
-    $('#twitter-username').text(Twitter.getUsername());
+    var oldUsername = $('#twitter-username').text();
+
+    // update the twitter username if we need to
+    if (oldUsername !== Twitter.getUsername) {
+        $('#twitter-username').fadeOut('fast', function () {
+            $(this).text(Twitter.getUsername()).fadeIn('fast');
+        });
+    }
+
+    // update tweet
     $('#tweet').fadeOut('fast', function () {
         $(this).html(curTweet).fadeIn();
     });
@@ -184,7 +198,7 @@ function initSockets() {
 
     socket.on('update twitter', function () {
         alert('received "update twitter" event');
-        Twitter.refreshTweets();
+        Twitter.refreshTweets(cycleTweets);
     });
 
 }
