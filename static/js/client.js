@@ -202,6 +202,7 @@ function initSockets() {
     });
 
     socket.on('toggle qr', function () {
+        alert('received "toggle qr" event');
         var $qr = $('#qr-img');
         if ($qr.is(':visible')) {
             $qr.fadeOut('fast');

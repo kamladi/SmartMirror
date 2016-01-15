@@ -87,6 +87,7 @@ html, button, input, select, textarea,
     background: white;
     padding: 10px;
     display: inline-block;
+    visibility: hidden;
 }
 
 #twitter-username {

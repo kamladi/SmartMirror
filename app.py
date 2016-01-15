@@ -175,7 +175,9 @@ buttons_thread.start()
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', {
+            qr_string="dankmirror.wv.cc.cmu.edu/settings"
+        })
 
 
 @app.route('/qr')
