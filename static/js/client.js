@@ -3,6 +3,7 @@ $(document).ready(function(){
     REMINDERS = new ReminderList();
     refreshReminders();
     getWeather();
+    getQR();
     setInterval(function () {
         getWeather();
     }, 5*60*1000);
@@ -27,6 +28,12 @@ $(document).ready(function(){
 
     $('form#twitter').submit(function (event) {
         getTwitterNews();
+        return false;
+    });
+
+
+    $('form#qr').submit(function (event) {
+        getQR();
         return false;
     });
 
@@ -65,7 +72,10 @@ $(document).ready(function(){
 
       annyang.start();
     }
+
+    initSockets();
 });
+
 
 /**
  * helper functions for widgets
@@ -84,6 +94,20 @@ function getWeather(speak) {
             $this.find('.weather-icon').html(Weather.getIconCode(result.icon_url));
             $this.find('.weather-desc').html(result.weather_desc);
             $this.fadeIn();
+        });
+    });
+}
+
+
+function getQR() {
+    $.getJSON('/qr', function (result) {
+
+        $('#qr-result').fadeOut('fast', function () {
+            var $this = $(this);
+            if (result.display){
+                $this.find('#qr-img').html(result.line)
+                $this.fadeIn();
+            }
         });
     });
 }
@@ -125,16 +149,25 @@ function renderCalendar() {
 }
 
 function renderSongInfo(data) {
-    // TODO
+    $('#spotify-result').fadeOut('fast', function () {
+        if (!data) {
+            return;
+        }
+        var $this = $(this);
+        $this.find('#song-title').text(data.title);
+        $this.find('#song-artist').text(data.artist);
+        $this.find('#song-album').text(data.album);
+        $this.fadeIn('fast');
+    });
 }
 
 function initSockets() {
     var socket = io();
-    io.on('connection', function (socket) {
+    socket.on('connect', function (socket) {
         console.log('socket connected');
-        socket.on('disconnect', function () {
-            console.log('socket disconnected');
-        });
+    });
+    socket.on('disconnect', function () {
+        console.log('socket disconnected');
     });
 
     socket.on('new song', function (data) {
