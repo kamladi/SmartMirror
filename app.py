@@ -22,12 +22,27 @@ import binascii
 import sys
 import Adafruit_PN532 as PN532
 from oauth2client.client import OAuth2WebServerFlow
+import RPi.GPIO as GPIO
+from spotify.play_track import initialize, playSong, nextSong, prevSong, getCurrentSongInfo
 
 
 # stuff needed for authentication google calendar
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Calendar API SMART MIRROR'
+
+#GPIO Setup
+GPIO.setmode(GPIO.BCM)
+BTN_PREV = 15
+BTN_PAUSE = 16
+BTN_NEXT = 17
+BTN_QR = 18
+
+GPIO.setup(BTN_PREV, GPIO.IN, pull_up_down=GPIO.PUD.UP)
+GPIO.setup(BTN_PAUSE, GPIO.IN, pull_up_down=GPIO.PUD.UP)
+GPIO.setup(BTN_NEXT, GPIO.IN, pull_up_down=GPIO.PUD.UP)
+GPIO.setup(BTN_QR, GPIO.IN, pull_up_down=GPIO.PUD.UP)
+
 
 # jank as fuck dictionary to hold usernames and passwords
 profiles = dict()
@@ -58,7 +73,28 @@ profiles[other_usr_2] = {
     'reminders': []
 }
 
-print profiles[current_rfid]
+# helper function to switch users (or create new user) and trigger socket events
+# to update the mirror
+def switch_user(rfid):
+    global current_rfid
+    global profiles
+    if current_rfid == rfid:
+        return
+    # new user, create new profile
+    if rfid not in profiles:
+        print "NEW USER RFID: ", rfid
+        new_profile = {
+            'twitter_username': 'coffeedad',
+            'google_credentials': None,
+            'reminders': []
+        }
+        profiles[rfid] = new_profile
+        socketio.emit('new user', {'rfid': rfid})
+
+    # set current user id to the given rfid
+    current_rfid = rfid
+    socketio.emit('update calendar', {'rfid': rfid})
+    socketio.emit('update twitter', {'rfid': rfid})
 
 # setup Twitter api
 twitter_api = twitter.Api(consumer_key='NANEOT59HbNisCUl680k9EvFz',
@@ -85,22 +121,42 @@ socketio = SocketIO(app, async_mode='eventlet')
 CLIENT_ID = "767898770169-fqonl25jc17v7k89p5070fegsji4g6n9.apps.googleusercontent.com"
 CLIENT_SECRET = "_-FwXMnuyO7_bu8kTy2EhfqR"
 
-#QRcode init
+# QRcode init
 QRcode(app)
 
 def background_thread():
-    """Example of how to send server generated events to clients."""
-    count = 0
-    print "starting thread"
+    print "Starting background thread"
     while True:
         time.sleep(5)
-        count += 1
-	uid = pn532.read_passive_target()
-	if uid is not(None):
-		uid_string = binascii.hexlify(uid)
-		print 'Found card with UIS: 0x{0}'.format(uid_string) 
-		switch_user(uid_string)      
- # socketio.emit('response', {'data': 'Server generated event', 'count': count})
+        # Read from RFID shield
+    	uid = pn532.read_passive_target()
+    	if uid is not(None):
+            uid_string = binascii.hexlify(uid)
+            print 'Found card with UIS: 0x{0}'.format(uid_string)
+            switch_user(uid_string)
+
+        # Read buttons
+        btn_prev_in = GPIO.input(BTN_PREV)
+        btn_pause_in = GPIO.input(BTN_PAUSE)
+        btn_pnext_in = GPIO.input(BTN_NEXT)
+        btn_qr_in = GPIO.input(BTN_QR)
+
+        # respond to possible buttons being pressed
+        if btn_prev_in is False:
+            prevSong()
+            socketio.emit('new song', getCurrentSongInfo())
+            time.sleep(0.2)
+        if btn_pause_in is False:
+            pauseSong()
+            time.sleep(0.2)
+        if btn_next_in is False:
+            nextSong()
+            socketio.emit('new song', getCurrentSongInfo())
+            time.sleep(0.2)
+        if btn_qr_in is False:
+            socketio.emit('toggle qr', {});
+            time.sleep(0.2)
+
 thread = Thread(target=background_thread)
 thread.start()
 
@@ -176,6 +232,7 @@ def google_logout():
 @app.route('/google/oauth2callback')
 def oauth2callback():
     global credentials
+    global current_rfid
     code = request.args.get('code')
     if code:
         flow = OAuth2WebServerFlow(CLIENT_ID,
@@ -188,6 +245,7 @@ def oauth2callback():
             print "Unable to get an access token because ", e.message
     current_user = get_current_profile()
     current_user['google_credentials'] = creds
+    socketio.emit('update calendar', {'rfid', current_rfid})
     return redirect(url_for('settings'))
 
 # sign up page stuff
@@ -210,6 +268,7 @@ except ImportError:
 
 @app.route('/settings/twitter', methods=['POST'])
 def twitter_settings():
+    global current_rfid
     current_user = get_current_profile()
     request_twitter_username = request.form['twitter_username']
     if request_twitter_username is None:
@@ -218,6 +277,7 @@ def twitter_settings():
     # remove '@' from beginning of username
     request_twitter_username = request_twitter_username.replace('@','')
     current_user['twitter_username'] = request_twitter_username
+    socketio.emit('update twitter', {'rfid', current_rfid})
     session.message = "successfully updated twitter username"
     return redirect(url_for('settings'))
 
@@ -248,15 +308,6 @@ def calendar():
          }
         eventList.append(result)
     return jsonify(events=eventList)
-
-
-def switch_user(rfid):
-    global current_rfid
-    print 'curr user', current_rfid
-    current_rfid = rfid
-    socketio.emit('update calendar', {'data': 'Server generated event'})
-    socketio.emit('update twitter', {'data': 'Server generated event'})
-    print 'new user', current_rfid
 
 
 @socketio.on('connect')
